@@ -7,20 +7,22 @@ from .forms import CreatePostForm
 
 # Create your views here.
 def index(request):
+    # 인증확인 분기 추가 
     if request.method == "GET":
+        # 로그인한 나의 포스트와 팔로잉 유저를 피드에
         if request.user.is_authenticated:
-            user = get_object_or_404(user_model, pk=request.user.id)
-            following = user.following.all()
+            user = get_object_or_404(user_model, pk=request.user.id) # 로그인된 유저
+            following = user.following.all() #유저가 팔로잉하는 모든 애새들
             posts = models.Post.objects.filter(
                 Q(author__in=following) | Q(author=user)
-            )
+            )# Q 객체. or 조건을 사용하기 위해 
 
             return render(request, 'posts/base.html')
 
 def post_create(request):
     if request.method == 'GET':
         form = CreatePostForm()
-        return render(request, 'posts/post_create.html', {"form": form})
+        return render(request, 'posts/post_create.html')
 
     elif request.method == 'POST':
         if request.user.is_authenticated:
@@ -43,7 +45,7 @@ def post_create(request):
             else:
                 print(form.errors)
 
-            return render(request, 'posts/main.html')
+            return render(request, 'posts/base.html')
 
         else:
             return render(request, 'users/main.html')
